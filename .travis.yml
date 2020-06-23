@@ -1,0 +1,38 @@
+os: linux
+dist: focal
+language: shell
+
+addons:
+  apt:
+    packages:
+        - wget
+
+jobs:
+  include:
+    - stage: "LiteX build"
+      script:
+        - litex/litex/boards/targets/versa_ecp5.py --build 
+      env:
+        - DEVICE="ecp5"
+        - INSTALL_DIR="/opt/$DEVICE"
+    - stage: "LiteX build"
+      script:
+        - wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/4/20200416-002215/symbiflow-arch-defs-install-a321d9d9.tar.xz | tar -xJ -C $INSTALL_DIR
+        - export PATH="$INSTALL_DIR/install/bin:$PATH"
+        - litex/litex/boards/targets/arty.py --toolchain symbiflow --cpu-type vexriscv --build
+      env:
+        - DEVICE="xc7"
+        - INSTALL_DIR="/opt/$DEVICE"
+
+before_install:
+  # Get conda
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda_installer.sh && chmod +x conda_installer.sh
+  # Get LiteX
+  - wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+
+install:
+  - bash conda_installer.sh -b -p $INSTALL_DIR/conda && rm conda_installer.sh
+  - source "$INSTALL_DIR/conda/etc/profile.d/conda.sh"
+  - conda env create -f environments/$DEVICE/environment.yml
+  - conda activate $DEVICE
+  - chmod +x litex_setup.py && ./litex_setup.py init install --user && export PATH=$PATH:~/.local/bin  

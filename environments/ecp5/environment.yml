@@ -1,0 +1,9 @@
+name: ecp5
+channels:
+  - litex-hub
+dependencies:
+  - nextpnr-ecp5
+  - gcc-riscv32-elf-nostdc
+  - make
+  - git
+  - libffi=3.2.1
