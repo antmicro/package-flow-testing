@@ -1,0 +1,29 @@
+os: linux
+dist: focal
+language: shell
+
+addons:
+  apt:
+    packages:
+        - wget
+
+jobs:
+  include:
+    - stage: Main
+      install:
+            - cd
+            # Get conda
+            - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && chmod +x Miniconda3-latest-Linux-x86_64.sh
+            - ./Miniconda3-latest-Linux-x86_64.sh -b
+            - ./miniconda3/bin/conda init
+            - source .bashrc
+            - conda config --add channels litex-hub
+            # Get Litex
+            - wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+            - chmod +x litex_setup.py && ./litex_setup.py init install --user && export PATH=$PATH:~/.local/bin  
+
+      script:
+            - cd
+            - conda install -y yosys nextpnr-ecp5
+            - litex/litex/boards/targets/versa_ecp5.py --build 
+
