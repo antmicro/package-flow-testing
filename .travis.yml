@@ -24,6 +24,6 @@ jobs:
 
       script:
             - cd
-            - conda install -y yosys nextpnr-ecp5
+            - conda install -y yosys nextpnr-ecp5 gcc-riscv32-elf-nostdc
             - litex/litex/boards/targets/versa_ecp5.py --build 
 
